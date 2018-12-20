@@ -14,7 +14,7 @@ deployments, we have begun replacing Consul service discovery with
 BOSH DNS. The Cloud Foundry Genesis Kit v1.3 is the first step in this
 two-step phase. v1.3 colocates BOSH DNS and disables Consul DNS, but
 does not remove Consul entirely. The result is a seamless upgrade from
-v1.2.X while also leveraging BOSH DNS fors service discovery.
+v1.2.X while also leveraging BOSH DNS for service discovery.
 
 It is our plan to fully remove Consul from the Cloud Foundry Genesis
 Kit in v1.4, which will include the deletion of all `consul_etcd`
@@ -29,12 +29,11 @@ necessary to use this feature.
 
 # Impact
 
-The impact of this feature to be minimal on the stability
-and runtime of your Cloud Foundry deployment. The decision to either
-apply or not apply this feature to your deployments will not impact
-future upgradability of this environment. No extra steps are necessary
-to maintain your Cloud Foundry environment after this GMP is
-completed.
+The impact of this feature is minimal to the runtime and stability of
+your Cloud Foundry deployment. The decision to either apply or not
+apply this feature to your deployments will not impact future
+upgradability of this environment. No extra steps are necessary to
+maintain your Cloud Foundry environment after this GMP is completed.
 
 There is no downtime incurred by applying this feature.
 
