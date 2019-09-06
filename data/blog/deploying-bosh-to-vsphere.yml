@@ -136,7 +136,8 @@ credentials as easily.
 Once the local Vault is up and running, we can interact with it via
 `safe`:
 
-    $ safe tree $ safe paths
+    $ safe tree 
+    $ safe paths
 
 etc.
 
@@ -155,7 +156,8 @@ Genesis Kit**.  Since this our first deployment of BOSH, we're going
 to initialize a new set of deployments, using `genesis init` (remember
 to do this from a `tmux` session):
 
-    $ mkdir ~/ops $ cd ~/ops $ genesis init -k BOSH Downloading
+    $ mkdir ~/ops 
+    $ cd ~/ops $ genesis init -k BOSH Downloading
     Genesis kit BOSH (latest version)...
 
     Initialized empty Genesis repository in
