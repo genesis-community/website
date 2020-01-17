@@ -148,8 +148,8 @@ the overall Cloud Foundry installation.
 ### Internal Network
 
 Most of the managerial parts of Cloud Foundry exist in the _internal_
-network.  These are components that need to talk to one another, but do not
-need to be access by application containers, or the outside world, directly.
+network.  These are components that need to talk to one another, but should not
+be accessible to application containers, or the outside world, directly.
 
 <table class="listing">
   <thead><tr>
