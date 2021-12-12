@@ -56,8 +56,10 @@
     <div>
       <nav>
         <h2>Latest Stable</h2>
-        <li><a href="#latest">Genesis v2.8.3-rc.4</a></li>
+        <li><a href="#latest">Genesis v2.8.3</a></li>
         <h2>Historic Releases</h2>
+        
+        <li><a href="#v2.8.3-rc.4">2.8.3-rc.4</a></li>
         
         <li><a href="#v2.8.2">2.8.2</a></li>
         
@@ -78,13 +80,142 @@
       </nav>
     </div>
 
-    <div id="v2.8.3-rc.4">
-      <h1 id="latest">Genesis v2.8.3-rc.4</h1>
+    <div id="v2.8.3">
+      <h1 id="latest">Genesis v2.8.3</h1>
       
-        <p>This is a prerelease - please see commit messages for changes</p>
-        <a class="button" href="https://github.com/starkandwayne/genesis/releases/tag/v2.8.3-rc.4" target="_blank">Download v2.8.3-rc.4</a>
+        <h2>Improvements</h2>
+
+<ul>
+<li><p>Command line can now take the path/env before the subcommand, without
+using -C.</p>
+
+<p>Command line can now take the enviornment before or after the command,
+and no longer needs the -C.  Moving forward in 3.0, the preference will
+be prefix instead of postfix, and the -C option will be dropped.</p>
+
+<p>Unlike the postfix method, the prefix method can take a path component.
+Unlike the -C option, the <code>.yml</code> doesn't need to be included (unless it
+is ambiguous, such as your file is named the same as a genesis command).</p>
+
+<p>Before:
+<code>
+genesis -C ../alt/path deploy my-env
+</code></p>
+
+<p>Now:
+<code>
+genesis ../alt/path/my-env deploy
+</code></p>
+
+<p>Before:
+<code>
+genesis -C deploy-dir/env.yml deploy
+</code></p>
+
+<p>Now:
+<code>
+genesis deploy-dir/env deploy
+</code></p></li>
+<li><p>User is now notified if the local kit version has changed from what
+was deployed when running <code>genesis info</code></p></li>
+</ul>
+
+<h2>Bug Fixes</h2>
+
+<ul>
+<li><p>With the changes in 2.8.2, a quazi-regression was introduced regarding
+BOSH targeting.  If the BOSH environment variables were set in an
+environment, Genesis would use those to target the BOSH director
+instead of what was specified in the environment file.</p>
+
+<p>The target BOSH and the manner in which it is targeted has been in
+flux for a number of years.  Genesis 2.8.x was meant to unify this,
+but there are multiple edge cases that we've worked through, and a lot
+of habits that need to be unlearned.  The following is the intended
+best practices, that if followed, will keep you out of trouble.</p>
+
+<ul>
+<li>Whenever possible, use <code>genesis bosh &lt;env&gt; &lt;bosh opts and args&gt;</code> to
+interact with the BOSH deployment associated with <env>.  There
+should be very little technical reasons to not use this method.</li>
+</ul>
+
+<p><strong>UNLEARN:</strong></p>
+
+<blockquote>
+  <p>Genesis is 'deployment-focused', while the BOSH cli is
+'director-focused'.  When you target a Genesis environment file, you
+need to stop thinking about which director you are using, but which
+deployment you care about; Genesis will figure out the associated
+BOSH director to talk to.  One of the reasons for this paradigm
+change is so users that have access to a deployment's env file, but
+not the corresponding bosh deployment's repo can still access the
+BOSH director needed to manage their deployment.</p>
+</blockquote>
+
+<ul>
+<li>If you need to access a Genesis deployment AS a BOSH director, use
+the -A option.  This will tell Genesis that the target environment
+contains the connection details for the BOSH director, not its
+parent.  It will also not set the -d|--deployment option.</li>
+</ul>
+
+<p>Example: <code>genesis bosh -A &lt;env&gt; &lt;bosh opts and args&gt;</code></p>
+
+<ul>
+<li><p>If you need to use the BOSH cli directly, you have two choices, each
+somes with side effects:</p></li>
+<li><p>Set the environment variables to connect to bosh.  This is what
+Genesis does internally, but if you do this, be aware that it
+lasts for the lifetime of the shell you are in, which can lead to
+unexpected side-effects.  You can do this by running</p>
+
+<p><code>eval "$(genesis bosh --connnect [-A] &lt;env&gt;)"</code></p>
+
+<p>where the optional -A specifies use <env> as the director instead
+of the deployment.</p>
+
+<p>You can also use the bosh-genesis-kit's <code>printenv</code> addon, if you
+have access to that deployment environment file.  While it is more
+powerful, including support for socks5 proxy, it also impacts the
+shell more.  See the bosh kit for more details.</p></li>
+<li><p>Use BOSH alias configuration and log in (daily) using the bosh
+deployment configuration.  This is the method Genesis used prior
+to v2.8.0, and still works if you're using bosh-genesis-kit v2.2.0
+or greater, and bosh-cli 6.4.4 or greater.  This has the advantage
+of needing to be explicitly stated with the -e option on the bosh
+call, and allowing multiple bosh directors to be authenticated
+against at the same time.  The down side is you'll need to
+re-authenticate periodically.</p></li>
+</ul>
+
+<p><p><strong>NOTE:</strong> If you have the BOSH environment variables set, Genesis will
+now ignore them when operating on a genesis deployment environment,
+but will issue a warning that it is doing so.  The environment's
+explicitly or implicitly specified bosh environment will be used.</p></li>
+<li><p>Fixes outdated references to pre-2.8 BOSH library calls.</p></li>
+<li><p>Resolves runtime error message when not specifying kit on <code>genesis init</code></p></li>
+<li><p>Resolves runtime error message for unspecified <code>use_create_env</code> property (2.8.0 feature)</p></li>
+<li><p>Correctly allows recreation of existing kits with --force option in compile-kit</p></li>
+<li><p>Fixes some internal kit hook bash wrappers around genesis callbacks</p></li>
+<li><p>Fixes race condition when creating a new bosh enviornment where it
+doesn't know the bosh director or if it is a proto bosh or not before
+it asks for those values.</p></li>
+<li><p>Reverts a change in v2.8.2, which would set the enviornment variable
+used internally and by the hooks to use the BOSH direcctor identified
+by BOSH<em>ENVIRONMENT.  The normal environment variable to do this is
+GENESIS</em>BOSH<em>ENVIRONMENT, but the previous change erroneously also
+included BOSH</em>ENVIRONMENT as a source for setting the BOSH director.</p></li>
+<li><p>Fixed bug <code>Can't locate object method "base_url" via package "Genesis::Kit::Provider::GenesisCommunity"</code>
+that occurred when <code>genesis repipe</code> was run</p></li>
+</ul></p>
+        <a class="button" href="https://github.com/starkandwayne/genesis/releases/tag/v2.8.3" target="_blank">Download v2.8.3</a>
       
 
+      
+      <h1 id="v2.8.3-rc.4">Genesis v2.8.3-rc.4</h1>
+      <p>This is a prerelease - please see commit messages for changes</p>
+      <a class="button" href="https://github.com/starkandwayne/genesis/releases/tag/v2.8.3-rc.4" target="_blank">Download v2.8.3-rc.4 from Github</a>
       
       <h1 id="v2.8.2">Genesis v2.8.2</h1>
       <h2>Bug Fixes</h2>
