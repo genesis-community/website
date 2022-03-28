@@ -56,8 +56,10 @@
     <div>
       <nav>
         <h2>Latest Stable</h2>
-        <li><a href="#latest">Genesis v2.8.4</a></li>
+        <li><a href="#latest">Genesis v2.8.5</a></li>
         <h2>Historic Releases</h2>
+        
+        <li><a href="#v2.8.4">2.8.4</a></li>
         
         <li><a href="#v2.8.3-rc.4">2.8.3-rc.4</a></li>
         
@@ -82,18 +84,72 @@
       </nav>
     </div>
 
-    <div id="v2.8.4">
-      <h1 id="latest">Genesis v2.8.4</h1>
+    <div id="v2.8.5">
+      <h1 id="latest">Genesis v2.8.5</h1>
       
-        <h2>Bug Fixes</h2>
+        <h2>Improvements</h2>
+
+<ul>
+<li><p>Added <code>genesis lookup --env</code> to retrieve environment variable values
+used by Genesis for the specified environment.  Like all lookup
+commands, '.' will return everything in JSON format, single value will
+be returned as an unquoted string, and default if specified, will be
+returned if environment variable specified doesn't exist.</p></li>
+<li><p>Added <code>--no-bosh</code> and <code>--no-vault</code> to <code>genesis env-shell</code> command, so
+that you can access a shell without forcing connections to those
+services.</p></li>
+<li><p>Fixed output of <code>genesis env-shell</code> so that the preamble header
+doesn't go to stdout.  This better allows running a user-provided
+executable as a shell (<code>--shell path/to/executable</code> option) to run
+arbitrary commands inside "Genesis-space", then capturing its output.</p></li>
+<li><p>Added <code>-p|--pre</code> flag to <code>genesis update</code> to allow checking for or
+upgrading to prereleases.</p></li>
+<li><p><code>genesis decompile-kit</code> can now take just the kit name or version.
+Specifying the name will decompile the latest local version, and
+specifying the version doesn't need the kit name if its unambiguous.</p></li>
+<li><p>The version can handle the v prefix in <code>genesis decompile-kit</code></p></li>
+<li><p>You can specify <code>latest</code> as the argument if only one kit type is in
+use (which is the way Genesis is designed to function)</p></li>
+<li><p>Show the version of Genesis when doing a deploy; helps with diagnoses
+when user submits deploy output when encountering an error.</p></li>
+</ul>
+
+<h2>Bug Fixes</h2>
+
+<ul>
+<li><p>Ignore any 'v' prefix when specifying the version in <code>genesis
+compile-kit</code></p></li>
+<li><p>Fixes issues encountered when creating new environments based on the
+<code>bosh</code> Genesis kit.  This also removed the confusing <code>bosh_env: --</code>
+entry under <code>genesis</code> in environment yml files.</p></li>
+<li><p>Future-proofing for creating new environments based on
+bosh-genesis-kit v3.0.0 (--[no-]create-env option to <code>genesis new</code>)</p></li>
+<li><p>Improved error messages for create-env/bosh_env conflicts.</p></li>
+<li><p><code>genesis new</code> now supports environment-first call style, allowing
+users to type <code>genesis &lt;env&gt; new ...</code> to create the new environment.</p></li>
+<li><p>Fixes another issue with <code>genesis new</code> when <code>genesis bosh --connect</code>
+has been used in the terminal session.</p></li>
+<li><p><code>genesis new</code> will explicitly prune <code>genesis.bosh_env</code> when making a
+new create-env based (aka proto) environment.</p></li>
+<li><p>When preparing exodus data after deploy, properly handle undefined
+values.</p></li>
+<li><p>The <code>genesis bosh</code> command now runs in the users calling directory, so
+relative paths to files work as expected.</p></li>
+<li><p>Fixed bug where some systems could not validate SSH keys due to 
+permission issues with here-strings.</p></li>
+</ul>
+        <a class="button" href="https://github.com/starkandwayne/genesis/releases/tag/v2.8.5" target="_blank">Download v2.8.5</a>
+      
+
+      
+      <h1 id="v2.8.4">Genesis v2.8.4</h1>
+      <h2>Bug Fixes</h2>
 
 <ul>
 <li>Manifests that contained values with percent signs were causing Genesis
 failures.  This has been resolved.</li>
 </ul>
-        <a class="button" href="https://github.com/starkandwayne/genesis/releases/tag/v2.8.4" target="_blank">Download v2.8.4</a>
-      
-
+      <a class="button" href="https://github.com/starkandwayne/genesis/releases/tag/v2.8.4" target="_blank">Download v2.8.4 from Github</a>
       
       <h1 id="v2.8.3-rc.4">Genesis v2.8.3-rc.4</h1>
       <p>This is a prerelease - please see commit messages for changes</p>
