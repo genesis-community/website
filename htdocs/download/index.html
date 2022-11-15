@@ -56,8 +56,10 @@
     <div>
       <nav>
         <h2>Latest Stable</h2>
-        <li><a href="#latest">Genesis v2.8.5</a></li>
+        <li><a href="#latest">Genesis v2.8.6</a></li>
         <h2>Historic Releases</h2>
+        
+        <li><a href="#v2.8.5">2.8.5</a></li>
         
         <li><a href="#v2.8.4">2.8.4</a></li>
         
@@ -84,10 +86,176 @@
       </nav>
     </div>
 
-    <div id="v2.8.5">
-      <h1 id="latest">Genesis v2.8.5</h1>
+    <div id="v2.8.6">
+      <h1 id="latest">Genesis v2.8.6</h1>
       
         <h2>Improvements</h2>
+
+<ul>
+<li><p>Clarified create-kit help description regarding the -n option to indicate
+that it automatically adds "-genesis-kit" suffix</p></li>
+<li><p>The generated scaffolding now has the base manifest default to use bionic stemcells</p></li>
+<li><p><code>genesis bosh</code> now supports all the basic options, including
+--[no-]color, -q|--quiet, -D|--debug, -T|--trace, and -S|--show-stack.</p></li>
+<li><p>Add the yaml files used during the check process of deployment.  This
+is especially useful when running deployments in pipelines, and when
+running the spec tests.  To enable it, set the environment variable
+GENESIS<em>CHECK</em>YAML<em>ON</em>DEPLOY to a truthy value (1, yes, true, Y) and
+export it (or set it in params section of the deploy task).</p></li>
+<li><p>Add pre-deploy and post-deploy reactions on a per-environment basis.</p>
+
+<p>Sometimes different environments need to perform tasks prior to and
+after doing a deploy.  This feature allows you to specify scripts that
+will be run in those circumstances.  Add the following structure to
+your environment file:</p>
+
+<p><code>
+genesis:
+reactions:
+  pre-deploy:
+    - script: put-up-maintenance-page
+    - script: update-jira
+      args:   [ 'some-argument', '$SOME_ENV_VAR' ]
+  post-deploy:
+    - addon: valid-addon-for-kit
+    - script: remove-maintenance-page
+</code></p>
+
+<p>The scripts are located in the bin/ dir under the repository root
+directory, and are propagated via the pipeline cache system.</p>
+
+<p>The scripts have access to the following environment variables:</p>
+
+<ul>
+<li><p>GENESIS<em>PREDEPLOY</em>DATAFILE -- file path that contains any data
+gathered by the predeploy hook</p></li>
+<li><p>GENESIS<em>MANIFEST</em>FILE -- file path to the full unredacted unpruned
+manifest for the current deployment</p></li>
+<li><p>GENESIS<em>BOSHVARS</em>FILE -- file path to any BOSH variables for the
+deployment</p></li>
+<li><p>GENESIS<em>DEPLOY</em>OPTIONS -- JSON representation of the options passed
+to the deploy call</p></li>
+<li><p>GENESIS<em>DEPLOY</em>DRYRUN -- "true" if the deployment is a dry-run,
+"false" otherwise</p></li>
+<li><p>GENESIS<em>DEPLOY</em>RC -- return code of the BOSH deploy call.  0 if
+successful, 1 otherwise.  Only available for post-deploy reactions</p></li>
+</ul></li>
+<li><p>You can now specify where your alternative BOSH director's credentials
+can be found.</p>
+
+<p>By convention, your BOSH environment (the director you are using to
+deploy your environment) is the same name as the environment you are
+deploying, and its credentials are stored in <code>exodus</code> in the same
+vault.</p>
+
+<p>This isn't possible when what you're deploying is another BOSH
+director, so Genesis has always made it possible to specify another
+BOSH environment alias, via the <code>genesis.bosh_env</code> parameter, and
+before that, via the <code>params.bosh</code> in the bosh kit.</p>
+
+<p>Furthermore, if you deployed your BOSH director with a non-standard
+kit, you could specify that deployment-type as such:
+<code>&lt;alias&gt;/&lt;deployment-type&gt;</code>.  By default, that deployment type is
+<code>bosh</code></p>
+
+<p>When v2.8.0 came around, we started storing access for the credentials
+to the BOSH director in vault.  While we always recommend using a
+single vault for all deployments in your deploy repo, some companies
+have policies that don't allow that.  To this end, you can now specify
+which vault and exodus base path under which your BOSH director
+credentials can be found.  This extends <code>genesis.bosh_env</code> with the
+following pattern:</p>
+
+<p><code>
+&lt;alias&gt;[/&lt;deployment-type&gt;][@[http(s?)://&lt;host&gt;[:&lt;port]/]&lt;base-path&gt;]
+</code></p>
+
+<p>We still recommend a single vault and single exodus base path whenever
+possible, as most of the existing kits that use exodus data do not
+have the ability to specify an alternative vault or path.  This simply
+allows the layering of nested BOSHes to work within the confines of
+corporate security policies.</p></li>
+<li><p>Adds a <code>--fix-releases</code> option to deployment for when you need to re-upload
+a bosh release.  This is rarely needed, mainly if you change the underlying
+stemcell to a new OS.</p></li>
+<li><p>Support --recreate-persistent-disks on deploy for both deploy and
+create-env environments.</p></li>
+<li><p><code>genesis decompile-kit</code> will now accept file with .yml suffix</p></li>
+</ul>
+
+<h2>Kit Authoring Improvements</h2>
+
+<ul>
+<li><p>Added print<em>addon</em>descriptions and run<em>extended</em>addon helpers to
+support extended addon scripts.</p>
+
+<p>Rather than have all the addons in the <code>hooks/addon</code> file, you can add
+individual <code>hook/addon-&lt;name&gt;~&lt;shortcut&gt;</code>.  To do so, you need to
+follow the following conventions:</p>
+
+<ul>
+<li><p>The script gets passed as its first argument the action to take.
+This is either help or run.  Help prints out the description to be
+used in list, and run causes the script to run.</p></li>
+<li><p>The main hooks/addon script must use print<em>addon</em>descriptions in its
+list command block, with alternative arguments of the base commands
+and descriptions.  Example:</p></li>
+</ul>
+
+<p><code>
+list) print_addon_descriptions \
+        "command" "description of command" \
+        "another" "description of another command" ;;
+</code></p>
+
+<ul>
+<li>The main hook/addon script uses run<em>extended</em>addon as its catch-all
+<code>*)</code> block.</li>
+</ul></li>
+<li><p>You can now find more genesis environment information in the manifest.
+In addition to the existing keys under <code>genesis.</code>, you can now find
+the vaultified environment (dashes into slashes) in
+<code>genesis.vault_env</code>, and the full path for the secrets and exodus
+base: <code>genesis.secrets_base</code> and <code>genesis.exodus_base</code> respectively.
+<code>genesis.secrets_base</code> is the same value as <code>meta.vault</code> but with the
+trailing <code>/</code>.</p></li>
+</ul>
+
+<h2>Bug Fixes</h2>
+
+<ul>
+<li><p>When using legacy secrets provider, if the current safe target has the
+same URL as another safe target, a confusing error would be printed.
+This change provides a much more informative error message.</p></li>
+<li><p>When using a specified secrets provider for a deployment repo, a more
+instructive error message is provided when multiple safe targets with
+the same URL is specified.</p></li>
+<li><p>Genesis doesn't like the <code>https_proxy</code> or <code>HTTPS_PROXY</code> environment
+variables being set, but BOSH was happy when they were set to "".
+However, upstream BOSH now considers that an error, so Genesis is
+going to simply unset them.</p>
+
+<p>If you need to use HTTPS proxy, you can still set <code>GENESIS_HONOR_ENV</code>
+to a truthy value, and it will keep <code>HTTPS_PROXY</code> and <code>https_proxy</code>
+environment variables from the calling scope, but only do this if
+you encounter an error.</p></li>
+<li><p>No longer errors when running <code>genesis version</code> if prerequisites are
+missing (the lone exception of course is if perl itself is missing)</p></li>
+<li><p>Clearing of the secrets provider (<code>genesis secrets-provider --clear</code>)
+now works.  This puts genesis in "Legacy Mode", meaning it will use
+whatever your current safe target is as the source for your genesis
+secrets.  Not recommended, but there are specific use cases that
+required it (for now).</p></li>
+<li><p>Support --recreate for create-env environments.  This was already
+supported for deploy-based environments, but was erroneously denied
+for create-env based environments (ie proto-bosh)</p></li>
+</ul>
+        <a class="button" href="https://github.com/starkandwayne/genesis/releases/tag/v2.8.6" target="_blank">Download v2.8.6</a>
+      
+
+      
+      <h1 id="v2.8.5">Genesis v2.8.5</h1>
+      <h2>Improvements</h2>
 
 <ul>
 <li><p>Added <code>genesis lookup --env</code> to retrieve environment variable values
@@ -138,9 +306,7 @@ relative paths to files work as expected.</p></li>
 <li><p>Fixed bug where some systems could not validate SSH keys due to 
 permission issues with here-strings.</p></li>
 </ul>
-        <a class="button" href="https://github.com/starkandwayne/genesis/releases/tag/v2.8.5" target="_blank">Download v2.8.5</a>
-      
-
+      <a class="button" href="https://github.com/starkandwayne/genesis/releases/tag/v2.8.5" target="_blank">Download v2.8.5 from Github</a>
       
       <h1 id="v2.8.4">Genesis v2.8.4</h1>
       <h2>Bug Fixes</h2>
