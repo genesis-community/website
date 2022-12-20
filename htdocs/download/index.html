@@ -56,8 +56,10 @@
     <div>
       <nav>
         <h2>Latest Stable</h2>
-        <li><a href="#latest">Genesis v2.8.6</a></li>
+        <li><a href="#latest">Genesis v2.8.7</a></li>
         <h2>Historic Releases</h2>
+        
+        <li><a href="#v2.8.6">2.8.6</a></li>
         
         <li><a href="#v2.8.5">2.8.5</a></li>
         
@@ -86,10 +88,34 @@
       </nav>
     </div>
 
-    <div id="v2.8.6">
-      <h1 id="latest">Genesis v2.8.6</h1>
+    <div id="v2.8.7">
+      <h1 id="latest">Genesis v2.8.7</h1>
       
-        <h2>Improvements</h2>
+        <h2>Bug Fixes</h2>
+
+<ul>
+<li><p>For vaults that have different secrets mount, you can set
+VAULT<em>SECRETS</em>MOUNT in the pipeline job to specify an alternative
+location where the secrets are found.  This fixes the issue where the
+pipeline can't authenticate to vault because it can't find handshake
+secret under /secrets/</p></li>
+<li><p>Pipeline fixes to authenticate to the vault when running errands</p></li>
+</ul>
+
+<h2>Improvements</h2>
+
+<ul>
+<li><p>Pipeline jobs can now use email for status notifications.</p></li>
+<li><p>Pipeline can now specify an alternative image registry for resources
+and workers, for supporting closed networks.  Supports both insecure
+and authentication by username/password.</p></li>
+</ul>
+        <a class="button" href="https://github.com/starkandwayne/genesis/releases/tag/v2.8.7" target="_blank">Download v2.8.7</a>
+      
+
+      
+      <h1 id="v2.8.6">Genesis v2.8.6</h1>
+      <h2>Improvements</h2>
 
 <ul>
 <li><p>Clarified create-kit help description regarding the -n option to indicate
@@ -250,9 +276,7 @@ required it (for now).</p></li>
 supported for deploy-based environments, but was erroneously denied
 for create-env based environments (ie proto-bosh)</p></li>
 </ul>
-        <a class="button" href="https://github.com/starkandwayne/genesis/releases/tag/v2.8.6" target="_blank">Download v2.8.6</a>
-      
-
+      <a class="button" href="https://github.com/starkandwayne/genesis/releases/tag/v2.8.6" target="_blank">Download v2.8.6 from Github</a>
       
       <h1 id="v2.8.5">Genesis v2.8.5</h1>
       <h2>Improvements</h2>
